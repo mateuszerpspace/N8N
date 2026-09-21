@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: 'n8nio/n8n:2.1.5'   # <- usuń lub zakomentuj tę linię
+
+    restart: unless-stopped
+
+    environment:
+      - N8N_RUNNERS_ENABLED=false
+      - NODE_FUNCTION_ALLOW_EXTERNAL=exceljs
+      - SERVICE_URL_N8N_5678
+      - N8N_EDITOR_BASE_URL=${SERVICE_URL_N8N}
+      - WEBHOOK_URL=${SERVICE_URL_N8N}
+      - N8N_HOST=${SERVICE_FQDN_N8N}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-https}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}
+      - TZ=${TZ:-UTC}
+      - DB_SQLITE_POOL_SIZE=${DB_SQLITE_POOL_SIZE:-2}
+
+    volumes:
+      - n8n-data:/home/node/.n8n
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+
+    # ports:                    # odkomentuj jeśli chcesz wystawić n8n na zewnątrz hosta
+    #   - "5678:5678"
+
+# Jeśli chcesz zachować serwis task-runners (choć przy N8N_RUNNERS_ENABLED=false nie jest potrzebny)
+# możesz go po prostu usunąć lub zakomentować cały blok poniżej:
+
+#  task-runners:
+#    image: 'n8nio/runners:2.1.5'
+#    environment:
+#      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
+#      - N8N_RUNNERS_AUTH_TOKEN=${SERVICE_PASSWORD_N8N}
+#      - N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT=15
+#      - N8N_RUNNERS_MAX_CONCURRENCY=5
+#      - NODE_FUNCTION_ALLOW_EXTERNAL=exceljs
+#    depends_on:
+#      - n8n
+#    healthcheck:
+#      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5680/"]
+#      interval: 5s
+#      timeout: 20s
+#      retries: 10
+
+volumes:
+  n8n-data:
