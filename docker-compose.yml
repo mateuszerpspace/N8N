@@ -11,7 +11,7 @@ services:
 
     environment:
       - N8N_RUNNERS_ENABLED=false
-      - NODE_FUNCTION_ALLOW_EXTERNAL=exceljs
+      - NODE_FUNCTION_ALLOW_EXTERNAL=exceljs,mjml,emailmd
       - SERVICE_URL_N8N_5678
       - N8N_EDITOR_BASE_URL=${SERVICE_URL_N8N}
       - WEBHOOK_URL=${SERVICE_URL_N8N}
